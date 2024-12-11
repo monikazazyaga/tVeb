@@ -1,5 +1,6 @@
-const sqlite3 = require('sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
+
 
 let db;
 
@@ -17,7 +18,8 @@ const initDb = async () => {
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             login TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL
+            password TEXT NOT NULL,
+            type TEXT NOT NULL
         )
     `);
 
@@ -33,14 +35,14 @@ const initDb = async () => {
     await db.exec(`
         CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
+            name TEXT NOT NULL UNIQUE
         )
     `);
 
     await db.exec(`
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
+            name TEXT NOT NULL UNIQUE,  -- Добавлено UNIQUE
             description TEXT,
             price REAL NOT NULL,
             categoryId INTEGER,
@@ -48,6 +50,7 @@ const initDb = async () => {
             FOREIGN KEY (categoryId) REFERENCES categories(id)
         )
     `);
+    
 
     await db.exec(`
         CREATE TABLE IF NOT EXISTS orders (
@@ -69,20 +72,20 @@ const initDb = async () => {
             FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE CASCADE,
             FOREIGN KEY (productId) REFERENCES products(id)
         )
-    `);
-
-    // Начальные данные в таблицу пользователей
-    await db.exec(`
-        INSERT INTO users (login, password) 
+    `);   
+   // Начальные данные в таблицу пользователей (проверка перед вставкой)
+    await db.run(`
+        INSERT INTO users (login, password, type) 
         VALUES 
-        ('u1', 'p1'),
-        ('u2', 'p2'),
-        ('u3', 'p3')
+        ('u1', 'p1', '1'),
+        ('u2', 'p2', '1'), 
+        ('a1', 'a1', '2'),
+        ('u3', 'p3', '1')
         ON CONFLICT(login) DO NOTHING;
     `);
 
     // Начальные данные в таблицу категорий
-    await db.exec(`
+    await db.run(`
         INSERT INTO categories (name) 
         VALUES 
         ('Иглы и расходники'),
@@ -94,7 +97,7 @@ const initDb = async () => {
     `);
 
     // Начальные данные в таблицу товаров
-    await db.exec(`
+    await db.run(`
         INSERT INTO products (name, description, price, categoryId, stock) 
         VALUES 
         ('Иглы для татуировки 0.30mm', 'Набор игл для татуировки, 50 штук', 20.00, 1, 100),
@@ -111,7 +114,7 @@ const initDb = async () => {
     `);
 
     // Начальные данные в таблицу заказов
-    await db.exec(`
+    await db.run(`
         INSERT INTO orders (userId, total) 
         VALUES 
         (1, 130.00),
@@ -121,7 +124,7 @@ const initDb = async () => {
     `);
 
     // Начальные данные в таблицу элементов заказа
-    await db.exec(`
+    await db.run(`
         INSERT INTO order_items (orderId, productId, quantity, price) 
         VALUES 
         (1, 1, 2, 20.00),

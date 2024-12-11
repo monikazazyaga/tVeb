@@ -11,17 +11,23 @@
     "start": "concurrently --kill-others \"npm run start:client\" \"npm run start:server\"",
     "postinstall": "concurrently \"npm run install:client\" \"npm run install:server\""
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dmitryweiner/express-auth-example.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/dmitryweiner/express-auth-example/issues"
-  },
-  "homepage": "https://github.com/dmitryweiner/express-auth-example#readme",
   "devDependencies": {
-    "concurrently": "^7.5.0"
+    "concurrently": "^7.5.0",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.1.10",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "formik": "^2.4.6",
+    "md5": "^2.3.0",
+    "nanoid": "^5.0.9",
+    "react-router-dom": "^7.0.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "yup": "^1.5.0"
   }
 }

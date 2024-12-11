@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es5",                          // Уровень ECMAScript, который будет сгенерирован
+        "module": "commonjs",                     // Модульная система
+        "strict": true,                           // Включает строгий режим проверки типов
+        "esModuleInterop": true,                  // Позволяет использовать import с CommonJS
+        "skipLibCheck": true,                     // Пропустить проверку .d.ts файлов
+        "forceConsistentCasingInFileNames": true // Принуждает к одинаковому регистру файлов
+    },
+    "include": [
+        "src/**/*"                                // Включает все файлы в папке src
+    ],
+    "exclude": [
+        "node_modules",                           // Исключает папку node_modules
+        "**/*.spec.ts"                            // Исключает файлы с тестами
+    ]
+}

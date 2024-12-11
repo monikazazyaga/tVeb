@@ -1,33 +1,18 @@
-class Orders {
-    constructor(db) {
-        this.db = db;
-    }
+const { getDb } = require("./db");
 
-    // Вставка нового заказа
-    async createOrder(userId, total) {
-        const query = `INSERT INTO orders (userId, total) VALUES (?, ?)`;
-        await this.db.run(query, [userId, total]);
-    }
+const TABLE_NAME = "orders";
 
-    // Получение всех заказов
-    async getAllOrders() {
-        const query = `SELECT * FROM orders`;
-        const rows = await this.db.all(query);
-        return rows;
-    }
-
-    // Получение заказов по пользователю
-    async getOrdersByUser(userId) {
-        const query = `SELECT * FROM orders WHERE userId = ?`;
-        const rows = await this.db.all(query, [userId]);
-        return rows;
-    }
-
-    // Удаление заказа
-    async deleteOrder(id) {
-        const query = `DELETE FROM orders WHERE id = ?`;
-        await this.db.run(query, [id]);
-    }
-}
-
-module.exports = Orders;
+module.exports = {
+    TABLE_NAME,
+    addOrder: async (userId, total) => {
+        const result = await getDb().run(
+            `INSERT INTO ${TABLE_NAME} (userId, total) VALUES (?, ?)`,
+            userId, total
+        );
+        return { id: result.lastID, userId, total };
+    },
+    getAllOrders: async () => await getDb().all(`SELECT * FROM ${TABLE_NAME}`),
+    deleteOrder: async (id) => {
+        await getDb().run(`DELETE FROM ${TABLE_NAME} WHERE id = ?`, id);
+    },
+};

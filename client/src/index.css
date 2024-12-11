@@ -1,13 +1,17 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Упростить шрифты */
+  background-color: #f4f4f4; /* Светлый фон */
+  color: #333; /* Темно-серый цвет текста */
+  line-height: 1.6; /* Увеличение расстояния между строками */
+  padding: 20px; /* Отступы по краям */
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'Courier New', Courier, monospace; /* Более распространенный шрифт для кода */
+  background-color: #e8e8e8; /* Светло-серый фон для кода */
+  border-radius: 4px; /* Закругленные углы */
+  padding: 2px 4px; /* Небольшие внутренние отступы */
+  color: #c7254e; /* Цвет текста кода */
+  display: inline-block; /* Отображение на одной строке */
 }

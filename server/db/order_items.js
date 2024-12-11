@@ -1,33 +1,18 @@
-class OrderItems {
-    constructor(db) {
-        this.db = db;
-    }
+const { getDb } = require("./db");
 
-    // Вставка новой детали заказа
-    async createOrderItem(orderId, productId, quantity, price) {
-        const query = `INSERT INTO order_items (orderId, productId, quantity, price) VALUES (?, ?, ?, ?)`;
-        await this.db.run(query, [orderId, productId, quantity, price]);
-    }
+const TABLE_NAME = "order_items";
 
-    // Получение всех деталей заказа
-    async getAllOrderItems() {
-        const query = `SELECT * FROM order_items`;
-        const rows = await this.db.all(query);
-        return rows;
-    }
-
-    // Получение деталей заказа по заказу
-    async getOrderItemsByOrder(orderId) {
-        const query = `SELECT * FROM order_items WHERE orderId = ?`;
-        const rows = await this.db.all(query, [orderId]);
-        return rows;
-    }
-
-    // Удаление детали заказа
-    async deleteOrderItem(id) {
-        const query = `DELETE FROM order_items WHERE id = ?`;
-        await this.db.run(query, [id]);
-    }
-}
-
-module.exports = OrderItems;
+module.exports = {
+    TABLE_NAME,
+    addOrderItem: async (orderId, productId, quantity, price) => {
+        const result = await getDb().run(
+            `INSERT INTO ${TABLE_NAME} (orderId, productId, quantity, price) VALUES (?, ?, ?, ?)`,
+            orderId, productId, quantity, price
+        );
+        return { id: result.lastID, orderId, productId, quantity, price };
+    },
+    getAllOrderItems: async () => await getDb().all(`SELECT * FROM ${TABLE_NAME}`),
+    deleteOrderItem: async (id) => {
+        await getDb().run(`DELETE FROM ${TABLE_NAME} WHERE id = ?`, id);
+    },
+};

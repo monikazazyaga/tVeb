@@ -1,39 +1,18 @@
-class Products {
-    constructor(db) {
-        this.db = db;
-    }
+const { getDb } = require("./db");
 
-    // Вставка нового продукта
-    async createProduct(name, description, price, categoryId, stock) {
-        const query = `INSERT INTO products (name, description, price, categoryId, stock) VALUES (?, ?, ?, ?, ?)`;
-        await this.db.run(query, [name, description, price, categoryId, stock]);
-    }
+const TABLE_NAME = "products";
 
-    // Получение всех продуктов
-    async getAllProducts() {
-        const query = `SELECT * FROM products`;
-        const rows = await this.db.all(query);
-        return rows;
-    }
-
-    // Получение продуктов по категории
-    async getProductsByCategory(categoryId) {
-        const query = `SELECT * FROM products WHERE categoryId = ?`;
-        const rows = await this.db.all(query, [categoryId]);
-        return rows;
-    }
-
-    // Обновление продукта
-    async updateProduct(id, name, price, stock) {
-        const query = `UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?`;
-        await this.db.run(query, [name, price, stock, id]);
-    }
-
-    // Удаление продукта
-    async deleteProduct(id) {
-        const query = `DELETE FROM products WHERE id = ?`;
-        await this.db.run(query, [id]);
-    }
-}
-
-module.exports = Products;
+module.exports = {
+    TABLE_NAME,
+    addProduct: async (name, description, price, categoryId, stock) => {
+        const result = await getDb().run(
+            `INSERT INTO ${TABLE_NAME} (name, description, price, categoryId, stock) VALUES (?, ?, ?, ?, ?)`,
+            name, description, price, categoryId, stock
+        );
+        return { id: result.lastID, name, description, price, categoryId, stock };
+    },
+    getAllProducts: async () => await getDb().all(`SELECT * FROM ${TABLE_NAME}`),
+    deleteProduct: async (id) => {
+        await getDb().run(`DELETE FROM ${TABLE_NAME} WHERE id = ?`, id);
+    },
+};

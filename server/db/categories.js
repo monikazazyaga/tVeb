@@ -1,32 +1,21 @@
-class Categories {
-    constructor(db) {
-        this.db = db;
-    }
+const { getDb } = require("./db");
 
-    // Вставка новой категории
-    async createCategory(name) {
-        const query = `INSERT INTO categories (name) VALUES (?)`;
-        await this.db.run(query, [name]);
-    }
+const TABLE_NAME = "categories";
 
-    // Получение всех категорий
-    async getAllCategories() {
-        const query = `SELECT * FROM categories`;
-        const rows = await this.db.all(query);
-        return rows;
-    }
-
-    // Обновление категории
-    async updateCategory(id, newName) {
-        const query = `UPDATE categories SET name = ? WHERE id = ?`;
-        await this.db.run(query, [newName, id]);
-    }
-
-    // Удаление категории
-    async deleteCategory(id) {
-        const query = `DELETE FROM categories WHERE id = ?`;
-        await this.db.run(query, [id]);
-    }
-}
-
-module.exports = Categories;
+module.exports = {
+    TABLE_NAME,
+    addCategory: async (name) => {
+        const result = await getDb().run(
+            `INSERT INTO ${TABLE_NAME} (name) VALUES (?)`,
+            name
+        );
+        return { id: result.lastID, name };
+    },
+    getAllCategories: async () => await getDb().all(`SELECT * FROM ${TABLE_NAME}`),
+    updateCategory: async (id, name) => {
+        await getDb().run(`UPDATE ${TABLE_NAME} SET name = ? WHERE id = ?`, name, id);
+    },
+    deleteCategory: async (id) => {
+        await getDb().run(`DELETE FROM ${TABLE_NAME} WHERE id = ?`, id);
+    },
+};

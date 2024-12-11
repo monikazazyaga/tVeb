@@ -1,31 +1,38 @@
 .App {
   text-align: center;
+  font-family: 'Arial', sans-serif; /* Изменен шрифт на Arial */
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+  border: 2px solid #61dafb; /* Добавлена рамка вокруг логотипа */
+  border-radius: 10px; /* Скругленные углы рамки */
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+    animation: App-logo-spin infinite 15s linear; /* Скорость анимации изменена */
   }
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #1c1f24; /* Изменен цвет фона */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  font-size: calc(12px + 2vmin); /* Размер шрифта немного увеличен */
+  color: #f0f0f0; /* Изменен цвет текста */
+  border: 5px solid #61dafb; /* Добавлена рамка вокруг хедера */
+  border-radius: 15px; /* Скругленные углы рамки для хедера */
+  padding: 20px; /* Добавлено отступы внутри хедера */
 }
 
 .App-link {
-  color: #61dafb;
+  color: #ffb74d; /* Изменен цвет ссылок */
+  text-decoration: underline; /* Сделаны ссылки подчеркиваемыми */
 }
 
 @keyframes App-logo-spin {
@@ -39,4 +46,14 @@
 
 ul {
   list-style-type: none;
+  padding: 0; /* Убран отступ у списка */
+}
+
+li {
+  background-color: #2e2e2e; /* Цвет фона для элементов списка */
+  border: 1px solid #61dafb; /* Рамка для элементов списка */
+  border-radius: 5px; /* Скругление углов для элементов списка */
+  margin: 10px 0; /* Отступы между элементами списка */
+  padding: 10px; /* Отступы внутри элементов списка */
+  color: #f0f0f0; /* Цвет текста внутри списка */
 }
