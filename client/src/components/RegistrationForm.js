@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { TextField, Button, Typography, Box } from '@mui/material';
+import { TextField, Button, Typography, Box, Link } from '@mui/material';
 import { API } from '../services/api';
 
 const RegistrationForm = () => {
@@ -83,6 +83,12 @@ const RegistrationForm = () => {
                     </Form>
                 )}
             </Formik>
+            <Typography variant="body2" style={{ marginTop: '16px' }}>
+                У вас уже есть аккаунт?{' '}
+                <Link href="/" underline="hover">
+                    Вход
+                </Link>
+            </Typography>
         </Box>
     );
 };

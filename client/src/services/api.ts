@@ -5,6 +5,11 @@ export type LoginData = {
     password: string;
 };
 
+export type LoginResponse = {
+    message: string;
+    userType: string; 
+};
+
 export type RegistrationData = {
     login: string;
     password: string;
@@ -26,15 +31,26 @@ export type Order = {
 };
 
 const errorHandler = async (response: Response) => {
-    if (response.status !== 200) {
-        const responseData = await response.json();
-        throw Error(responseData.message);
+    if (!response.ok) { 
+        let errorMessage = 'Ошибка';
+        try {
+            const responseData = await response.json(); // Если не удается получить JSON, это вызовет ошибку
+            errorMessage = responseData.message || errorMessage;
+        } catch (e) {
+            // Ошибки JSON могут происходить, если ответ HTML
+            const text = await response.text(); // Получение текста ответа
+            console.error('Ошибка парсинга:', text);
+            throw new Error('Произошла ошибка при загрузке данных.'); // Общее сообщение об ошибке для пользователя
+        }
+        throw new Error(errorMessage);
     }
 };
 
+
+
 export const API = {
     auth: {
-        login: async (data: LoginData) => {
+        login: async (data: LoginData): Promise<LoginResponse> => {
             const response = await fetch(`${BASE_URL}/auth/login`, {
                 method: "POST",
                 credentials: "include",
@@ -42,6 +58,7 @@ export const API = {
                 body: JSON.stringify(data),
             });
             await errorHandler(response);
+            return await response.json(); // Возвращаем ответ API
         },
         logout: async () => {
             await fetch(`${BASE_URL}/auth/logout`, {
@@ -79,6 +96,20 @@ export const API = {
                 method: "DELETE",
             });
             await errorHandler(response);
+        },
+        getProductById: async (id: number) => {
+            const response = await fetch(`${BASE_URL}/products/${id}`, { method: "GET" });
+            await errorHandler(response);
+            return await response.json();
+        },
+        updateProduct: async (id: number, product: Product) => { // Указаны типы для id и product
+            const response = await fetch(`${BASE_URL}/products/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(product),
+            });
+            await errorHandler(response);
+            return await response.json(); // Вернуть обновленный продукт
         },
     },
     orders: {

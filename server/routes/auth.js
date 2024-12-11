@@ -7,14 +7,31 @@ const authRouter = express.Router();
 const COOKIE_NAME = "token";
 
 authRouter.post('/login', async (req, res) => {
-    const user = await getUserByLogin(req.body.login);
-    if (!user || user.password !== md5(req.body.password)) {
+    const { login, password } = req.body;
+    console.log('Login attempt:', { login, password }); // Логируем входные данные
+
+    const user = await getUserByLogin(login);
+    console.log('User found:', user); // Логируем информацию о пользователе
+
+    if (!user) {
+        console.log('User not found'); // Логируем, если пользователь не найден
         return res.status(400).json({ message: 'Неправильный логин или пароль' });
     }
+
+    const hashedPassword = md5(password);
+    console.log('Hashed password:', hashedPassword); // Логируем хеш пароля
+    console.log('Stored password:', user.password); // Логируем сохраненный хеш пароля
+
+    if (user.password !== hashedPassword) {
+        console.log('Password mismatch'); // Логируем несоответствие паролей
+        return res.status(400).json({ message: 'Неправильный логин или пароль' });
+    }
+
     const token = await addToken(user.id);
     res.cookie(COOKIE_NAME, token, { httpOnly: true });
-    res.status(200).json({ ok: true });
+    res.status(200).json({ ok: true, userType: user.type });
 });
+
 
 authRouter.delete('/logout', async (req, res) => {
     const token = req.cookies[COOKIE_NAME];

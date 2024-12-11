@@ -15,4 +15,16 @@ module.exports = {
     deleteProduct: async (id) => {
         await getDb().run(`DELETE FROM ${TABLE_NAME} WHERE id = ?`, id);
     },
+    getProductById: async (id) => {
+        const product = await getDb().get(`SELECT * FROM products WHERE id = ?`, id);
+        return product;
+    },
+
+    updateProduct: async (id, name, description, price, categoryId, stock) => {
+        await getDb().run(
+            `UPDATE ${TABLE_NAME} SET name = ?, description = ?, price = ?, categoryId = ?, stock = ? WHERE id = ?`,
+            name, description, price, categoryId, stock, id
+        );
+        return { id, name, description, price, categoryId, stock };
+    },
 };

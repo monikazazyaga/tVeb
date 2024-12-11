@@ -1,14 +1,18 @@
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
-
+const crypto = require('crypto'); // Импортируем модуль crypto
 
 let db;
+
+const hashPassword = (password) => {
+    return crypto.createHash('md5').update(password).digest('hex'); // Хеширование с помощью MD5
+};
 
 const initDb = async () => {
     // Открыть базу данных
     if (!db) {
         db = await open({
-            filename: 'database.db', // имя и путь к БД
+            filename: 'database.db',
             driver: sqlite3.Database
         });
     }
@@ -42,15 +46,14 @@ const initDb = async () => {
     await db.exec(`
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,  -- Добавлено UNIQUE
+            name TEXT NOT NULL UNIQUE,
             description TEXT,
             price REAL NOT NULL,
             categoryId INTEGER,
-            stock INTEGER NOT NULL DEFAULT 0,
+            stock INTEGER DEFAULT 0,
             FOREIGN KEY (categoryId) REFERENCES categories(id)
         )
     `);
-    
 
     await db.exec(`
         CREATE TABLE IF NOT EXISTS orders (
@@ -72,17 +75,24 @@ const initDb = async () => {
             FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE CASCADE,
             FOREIGN KEY (productId) REFERENCES products(id)
         )
-    `);   
-   // Начальные данные в таблицу пользователей (проверка перед вставкой)
+    `);
+
+    // Хеширование паролей для начальных данных
+    const hashedPassword1 = hashPassword('p1');
+    const hashedPassword2 = hashPassword('p2');
+    const hashedPassword3 = hashPassword('a1');
+    const hashedPassword4 = hashPassword('p3');
+
+    // Начальные данные в таблицу пользователей
     await db.run(`
         INSERT INTO users (login, password, type) 
         VALUES 
-        ('u1', 'p1', '1'),
-        ('u2', 'p2', '1'), 
-        ('a1', 'a1', '2'),
-        ('u3', 'p3', '1')
+        ('u1', ?, '1'),
+        ('u2', ?, '1'), 
+        ('a1', ?, '2'),
+        ('u3', ?, '1')
         ON CONFLICT(login) DO NOTHING;
-    `);
+    `, [hashedPassword1, hashedPassword2, hashedPassword3, hashedPassword4]);
 
     // Начальные данные в таблицу категорий
     await db.run(`

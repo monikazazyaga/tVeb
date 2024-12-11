@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { TextField, Button, Typography, Box } from '@mui/material';
+import { TextField, Button, Typography, Box, Link } from '@mui/material';
 import { API } from '../services/api';
 
 const LoginForm = () => {
@@ -14,20 +14,31 @@ const LoginForm = () => {
     });
 
     const handleSubmit = async (values) => {
+        console.log('Form submitted:', values);
         const { login, password } = values;
         try {
-            await API.auth.login({ login, password });
+            const response = await API.auth.login({ login, password });
             setMessage('Успешный вход');
             setMessageType('success');
-            // Перенаправление зависит от типа пользователя
-            // Например, проверка типа пользователя можно сделать с помощью API
-            window.location.href = '/home'; 
+            console.log('API response:', response);
+            const userType = response.userType; 
+        
+
+            if (userType === '1') {
+                window.location.href = '/home';
+            } else if (userType === '2') {
+                window.location.href = '/admin';
+            } else {
+                throw new Error('Не удалось определить тип пользователя');
+            }
         } catch (error) {
-            console.error(error); 
+            console.error(error);
             setMessage(error.message);
             setMessageType('error');
         }
     };
+    
+    
 
     return (
         <Box>
@@ -67,7 +78,17 @@ const LoginForm = () => {
                             )}
                         </Field>
                         <Button type="submit">Войти</Button>
-                        {message && <Typography color={messageType === 'error' ? 'red' : 'green'}>{message}</Typography>}
+                        {message && (
+                            <Typography color={messageType === 'error' ? 'red' : 'green'}>
+                                {message}
+                            </Typography>
+                        )}
+                        <Typography variant="body2" style={{ marginTop: '16px' }}>
+                            Нет аккаунта?{' '}
+                            <Link href="/register" underline="hover">
+                                Зарегистрироваться
+                            </Link>
+                        </Typography>
                     </Form>
                 )}
             </Formik>
@@ -76,4 +97,3 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
-
