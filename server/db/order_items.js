@@ -7,7 +7,8 @@ module.exports = {
     addOrderItem: async (orderId, productId, quantity, price) => {
         const result = await getDb().run(
             `INSERT INTO ${TABLE_NAME} (orderId, productId, quantity, price) VALUES (?, ?, ?, ?)`,
-            orderId, productId, quantity, price
+            [orderId, productId, quantity, price]
+
         );
         return { id: result.lastID, orderId, productId, quantity, price };
     },
@@ -15,4 +16,8 @@ module.exports = {
     deleteOrderItem: async (id) => {
         await getDb().run(`DELETE FROM ${TABLE_NAME} WHERE id = ?`, id);
     },
+    getOrderItems: async (orderId) => {
+        return await getDb().all(`SELECT * FROM order_items WHERE orderId = ?`, orderId);
+    },
+    
 };

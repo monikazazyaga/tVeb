@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react'; 
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { TextField, Button, Typography, Box, Link } from '@mui/material';
 import { API } from '../services/api';
+import { useUser } from '../services/UserContext'; 
+import { useNavigate } from 'react-router-dom';
+
 
 const LoginForm = () => {
+    const { setUser } = useUser(); 
+    const navigate = useNavigate(); 
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('');
 
@@ -14,20 +19,24 @@ const LoginForm = () => {
     });
 
     const handleSubmit = async (values) => {
-        console.log('Form submitted:', values);
         const { login, password } = values;
         try {
             const response = await API.auth.login({ login, password });
+            console.log('Response from API:', response);
             setMessage('Успешный вход');
             setMessageType('success');
-            console.log('API response:', response);
+
             const userType = response.userType; 
-        
+            const userId = response.userId; 
+
+            // Сохраняем информацию о пользователе в контексте
+            setUser({ userId, userType });
+            localStorage.setItem('userId', userId); 
 
             if (userType === '1') {
-                window.location.href = '/home';
+                navigate('/home'); // используйте navigate вместо window.location.href
             } else if (userType === '2') {
-                window.location.href = '/admin';
+                navigate('/admin'); // используйте navigate вместо window.location.href
             } else {
                 throw new Error('Не удалось определить тип пользователя');
             }
@@ -37,6 +46,7 @@ const LoginForm = () => {
             setMessageType('error');
         }
     };
+
     
     
 

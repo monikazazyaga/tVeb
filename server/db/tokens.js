@@ -6,7 +6,7 @@ const TABLE_NAME = "tokens";
 module.exports = {
     TABLE_NAME,
     addToken: async (userId) => {
-        const token = nanoid();
+        const token = nanoid(); // Генерируем уникальный токен
         await getDb().run(`INSERT INTO ${TABLE_NAME} (token, userId) VALUES (?, ?)`, token, userId);
         return token;
     },
@@ -18,3 +18,4 @@ module.exports = {
         await getDb().run(`DELETE FROM ${TABLE_NAME} WHERE token = ?`, token);
     },
 };
+

@@ -8,6 +8,7 @@ export type LoginData = {
 export type LoginResponse = {
     message: string;
     userType: string; 
+    userId: number;
 };
 
 export type RegistrationData = {
@@ -31,17 +32,22 @@ export type Order = {
 };
 
 const errorHandler = async (response: Response) => {
-    if (!response.ok) { 
+    const responseClone = response.clone();
+    
+    if (!response.ok) {
         let errorMessage = 'Ошибка';
         try {
-            const responseData = await response.json(); // Если не удается получить JSON, это вызовет ошибку
+            const responseData = await responseClone.json();
             errorMessage = responseData.message || errorMessage;
         } catch (e) {
-            // Ошибки JSON могут происходить, если ответ HTML
-            const text = await response.text(); // Получение текста ответа
-            console.error('Ошибка парсинга:', text);
-            throw new Error('Произошла ошибка при загрузке данных.'); // Общее сообщение об ошибке для пользователя
+            try {
+                const text = await responseClone.text();
+                errorMessage = text;
+            } catch {
+                errorMessage = 'Неизвестная ошибка';
+            }
         }
+        console.error('Произошла ошибка:', errorMessage); // Логируем ошибку
         throw new Error(errorMessage);
     }
 };
@@ -53,19 +59,30 @@ export const API = {
         login: async (data: LoginData): Promise<LoginResponse> => {
             const response = await fetch(`${BASE_URL}/auth/login`, {
                 method: "POST",
-                credentials: "include",
+                credentials: "include", // Позволяет использовать куки
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
             });
             await errorHandler(response);
-            return await response.json(); // Возвращаем ответ API
+            const { token, userType , userId } = await response.json();
+            localStorage.setItem('token', token); // Сохраняем токен в localStorage
+            return { message: 'Успешный вход', userType, userId  };
         },
         logout: async () => {
             await fetch(`${BASE_URL}/auth/logout`, {
                 method: "DELETE",
                 credentials: "include",
             });
+            localStorage.removeItem('token'); // Удаляем токен при выходе
         },
+        getUserIdByToken: async () => {
+            const response = await fetch(`${BASE_URL}/auth/me`, {
+                method: "GET",
+                credentials: "include",
+            });
+            await errorHandler(response);
+            return await response.json(); // Возвращает { userId }
+        }
     },
     user: {
         register: async (data: RegistrationData) => {
@@ -112,6 +129,13 @@ export const API = {
             return await response.json(); // Вернуть обновленный продукт
         },
     },
+    categories: {
+        getAllCategories: async () => {
+            const response = await fetch(`${BASE_URL}/categories`, { method: "GET" }); // Предполагается, что на сервере есть этот маршрут
+            await errorHandler(response);
+            return await response.json();
+        },
+    },
     orders: {
         createOrder: async (userId: number, total: number) => {
             const response = await fetch(`${BASE_URL}/orders`, {
@@ -119,13 +143,81 @@ export const API = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId, total }),
             });
-            await errorHandler(response);
+            if (!response.ok) {
+                const errorData = await response.json(); 
+                console.error('Ошибка при создании заказа:', errorData); 
+                throw new Error(errorData.message || 'Ошибка при создании заказа');
+            }
+        
+            return await response.json();
         },
         getAllOrders: async (userId: number) => {
-            const response = await fetch(`${BASE_URL}/orders?userId=${userId}`, { method: "GET" });
+            const response = await fetch(`${BASE_URL}/orders?userId=${userId}`, { method: "GET" }); 
+            await errorHandler(response); 
+            return await response.json(); 
+        },
+        getOrderItemsByOrderId: async (orderId: number) => {
+            const response = await fetch(`${BASE_URL}/orders/${orderId}/items`, { method: "GET" });
             await errorHandler(response);
             return await response.json();
         },
+        
+    },
+   
+    orderItems: {
+        addOrderItem: async (orderId: number, productId: number, quantity: number, price: number) => {
+            const response = await fetch(`${BASE_URL}/order_items`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId, productId, quantity, price }),
+            });
+            if (!response.ok) {
+                throw new Error(`Ошибка добавления товара: ${response.statusText}`);
+            }
+            return await response.json();
+        },
+        getOrderItems: async (orderId:number) => {
+            const response = await fetch(`${BASE_URL}/order_items/${orderId}`, {
+                method: "GET",
+            });
+            await errorHandler(response);
+            return await response.json();
+        },
+    },
+
+  
+    cart: {
+        createCart: async (userId: number) => {
+            const response = await fetch(`${BASE_URL}/cart`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId }),
+            });
+            console.log('Отправка userId:', userId);
+    
+            if (!response.ok) {
+                const errorText = await response.text(); 
+                throw new Error(`Ошибка: ${response.status} ${errorText}`); // Включаем текст ошибки
+            }
+            return await response.json(); 
+        },
+        addCartItem: async (cartId: number, productId: number, quantity: number) => { // Явно указываем типы для параметров
+            const response = await fetch(`${BASE_URL}/cart/items`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cartId, productId, quantity })
+            });
+            await errorHandler(response);
+           
+        },
+        getCartItems: async (cartId: number) => { // Явно указываем тип для cartId
+            const response = await fetch(`${BASE_URL}/cart/${cartId}/items`, { method: "GET" });
+            await errorHandler(response);
+            return await response.json();
+        },
+        clearCart: async (cartId: number) => { // Явно указываем тип для cartId
+            await fetch(`${BASE_URL}/cart/${cartId}`, { method: "DELETE" });
+        }
     },
 };
 
