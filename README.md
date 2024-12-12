@@ -1,19 +1,13 @@
-# Authentication with Express.js and React.js
-## Аутентификация на Express и React
+## Запуск проекта
 
-* [Сервер](https://github.com/dmitryweiner/express-auth-example/tree/master/server)
-* [Клиент](https://github.com/dmitryweiner/express-auth-example/tree/master/client)
-* [Презентация](https://dmitryweiner.github.io/lectures/Express.html#/)
-* [Видео](https://www.youtube.com/watch?v=5riqB93BSsM)
-
-## Установка
-
-```shell
-npm i
-```
-
-## Запуск
-
-```shell
+### Сервер
+1. Перейдите в каталог сервера:
+   ```bash
+   cd server
+npm install
 npm start
-```
+
+Перейдите в каталог клиента:
+cd client
+npm install
+npm start
